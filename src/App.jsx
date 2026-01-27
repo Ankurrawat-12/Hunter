@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { getMongoService } from './services/mongodb';
 
 // --- ICONS ---
 const Icons = {
@@ -209,17 +210,37 @@ export default function App() {
     const [alertType, setAlertType] = useState('alert'); // 'alert', 'error', 'confirm'
     const [confirmCallback, setConfirmCallback] = useState(null);
 
-    // Init & Persistence
-    useEffect(() => {
-        const saved = localStorage.getItem('kuroank_war_room_data_v9'); 
-        if (saved) {
-            try { setJobs(JSON.parse(saved)); } catch (e) { console.error(e); }
-        }
-    }, []);
+    // MongoDB Service
+    const mongoService = getMongoService(mongoString);
 
+    // Init & Persistence - Load from MongoDB or localStorage
     useEffect(() => {
-        if (jobs.length > 0) localStorage.setItem('kuroank_war_room_data_v9', JSON.stringify(jobs));
-    }, [jobs]);
+        const loadJobs = async () => {
+            try {
+                const loadedJobs = await mongoService.loadJobs();
+                if (loadedJobs && loadedJobs.length > 0) {
+                    setJobs(loadedJobs);
+                }
+            } catch (error) {
+                console.error('Failed to load jobs:', error);
+                // Fallback to localStorage
+                const saved = localStorage.getItem('kuroank_war_room_data_v9'); 
+                if (saved) {
+                    try { setJobs(JSON.parse(saved)); } catch (e) { console.error(e); }
+                }
+            }
+        };
+        loadJobs();
+    }, [mongoString]);
+
+    // Save to MongoDB whenever jobs change
+    useEffect(() => {
+        if (jobs.length > 0) {
+            mongoService.saveJobs(jobs).catch(error => {
+                console.error('Failed to save jobs:', error);
+            });
+        }
+    }, [jobs, mongoString]);
 
     const saveSettings = () => {
         // Settings are now read from environment variables (.env.local)
@@ -258,7 +279,7 @@ export default function App() {
         handleAlertClose();
     };
 
-    const addJob = (type) => {
+    const addJob = async (type) => {
         const newJob = {
             id: Date.now(),
             date: new Date().toISOString().split('T')[0],
@@ -272,27 +293,53 @@ export default function App() {
             url: "",
             email: "",
             fullJD: "",
-            notes: ""
+            notes: "",
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
         };
-        setJobs([newJob, ...jobs]);
-        notify(`New ${type} App Added`);
+        const updatedJobs = [newJob, ...jobs];
+        setJobs(updatedJobs);
+        try {
+            await mongoService.saveJobs(updatedJobs);
+            notify(`New ${type} App Added`);
+        } catch (error) {
+            console.error('Failed to save job:', error);
+            notify(`New ${type} App Added (saved locally)`);
+        }
     };
 
-    const updateJob = (id, field, value) => {
-        setJobs(jobs.map(j => j.id === id ? { ...j, [field]: value } : j));
+    const updateJob = async (id, field, value) => {
+        const updatedJobs = jobs.map(j => 
+            j.id === id 
+                ? { ...j, [field]: value, updatedAt: new Date().toISOString() }
+                : j
+        );
+        setJobs(updatedJobs);
         if (selectedJob && selectedJob.id === id) {
-            setSelectedJob(prev => ({ ...prev, [field]: value }));
+            setSelectedJob(prev => ({ ...prev, [field]: value, updatedAt: new Date().toISOString() }));
+        }
+        try {
+            await mongoService.saveJobs(updatedJobs);
+        } catch (error) {
+            console.error('Failed to update job in MongoDB:', error);
         }
     };
 
     const deleteJob = (id) => {
-        showConfirm("Delete this entry?", () => {
-            setJobs(jobs.filter(j => j.id !== id));
+        showConfirm("Delete this entry?", async () => {
+            const updatedJobs = jobs.filter(j => j.id !== id);
+            setJobs(updatedJobs);
             if(detailsModalOpen && selectedJob?.id === id) {
                 setDetailsModalOpen(false);
                 setSelectedJob(null);
             }
-            notify("Entry Deleted");
+            try {
+                await mongoService.saveJobs(updatedJobs);
+                notify("Entry Deleted");
+            } catch (error) {
+                console.error('Failed to delete job from MongoDB:', error);
+                notify("Entry Deleted (local only)");
+            }
         });
     };
 
@@ -371,13 +418,22 @@ export default function App() {
                 fullJD: parsed.job_description || rawJD,
                 url: "",
                 email: parsed.email || "",
-                notes: `Stack: ${parsed.tech_stack}`
+                notes: `Stack: ${parsed.tech_stack}`,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
             };
 
-            setJobs([newJob, ...jobs]);
+            const updatedJobs = [newJob, ...jobs];
+            setJobs(updatedJobs);
             setRawJD('');
             setPasteModalOpen(false);
-            notify("JD Parsed & Added!");
+            try {
+                await mongoService.saveJobs(updatedJobs);
+                notify("JD Parsed & Added!");
+            } catch (error) {
+                console.error('Failed to save parsed job to MongoDB:', error);
+                notify("JD Parsed & Added! (saved locally)");
+            }
         } catch (error) {
             console.error("Parsing failed", error);
             showAlert("Failed to parse JD. Check API Key or try manual entry.", 'error');
@@ -829,6 +885,9 @@ export default function App() {
                                 />
                                 <p className="text-xs text-slate-500 mt-2">
                                     {mongoString ? '✅ Loaded from VITE_MONGODB_CONNECTION_STRING' : '⚠️ Set VITE_MONGODB_CONNECTION_STRING in .env.local file'}
+                                </p>
+                                <p className="text-xs text-blue-400 mt-1">
+                                    💡 Start API server with: <code className="bg-slate-800 px-1 rounded">npm run api</code>
                                 </p>
                             </div>
 
