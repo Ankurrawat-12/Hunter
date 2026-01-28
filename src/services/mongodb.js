@@ -5,8 +5,13 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
 class MongoDBService {
     constructor(connectionString) {
-        this.connectionString = connectionString;
-        this.useMongoDB = !!connectionString;
+        // Only use MongoDB if connection string is valid (not placeholder)
+        const isValidConnectionString = connectionString && 
+            connectionString.startsWith('mongodb') && 
+            !connectionString.includes('your_mongodb_connection_string');
+        
+        this.connectionString = isValidConnectionString ? connectionString : null;
+        this.useMongoDB = !!this.connectionString;
     }
 
     async fetchAPI(endpoint, options = {}) {

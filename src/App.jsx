@@ -210,8 +210,8 @@ export default function App() {
     const [alertType, setAlertType] = useState('alert'); // 'alert', 'error', 'confirm'
     const [confirmCallback, setConfirmCallback] = useState(null);
 
-    // MongoDB Service
-    const mongoService = getMongoService(mongoString);
+    // MongoDB Service - memoize to prevent recreation on every render
+    const mongoService = React.useMemo(() => getMongoService(mongoString), [mongoString]);
 
     // Init & Persistence - Load from MongoDB or localStorage
     useEffect(() => {
@@ -220,6 +220,12 @@ export default function App() {
                 const loadedJobs = await mongoService.loadJobs();
                 if (loadedJobs && loadedJobs.length > 0) {
                     setJobs(loadedJobs);
+                } else {
+                    // Fallback to localStorage if MongoDB returns empty
+                    const saved = localStorage.getItem('kuroank_war_room_data_v9'); 
+                    if (saved) {
+                        try { setJobs(JSON.parse(saved)); } catch (e) { console.error(e); }
+                    }
                 }
             } catch (error) {
                 console.error('Failed to load jobs:', error);
@@ -231,7 +237,7 @@ export default function App() {
             }
         };
         loadJobs();
-    }, [mongoString]);
+    }, [mongoService]);
 
     // Save to MongoDB whenever jobs change
     useEffect(() => {
@@ -240,7 +246,7 @@ export default function App() {
                 console.error('Failed to save jobs:', error);
             });
         }
-    }, [jobs, mongoString]);
+    }, [jobs, mongoService]);
 
     const saveSettings = () => {
         // Settings are now read from environment variables (.env.local)
@@ -372,7 +378,12 @@ export default function App() {
 
     // --- GEMINI PARSING LOGIC ---
     const parseJD = async () => {
-        if (!apiKey) {
+        // Check if API key is valid (not placeholder)
+        const isValidApiKey = apiKey && 
+            apiKey.trim() !== '' && 
+            !apiKey.includes('your_gemini_api_key');
+        
+        if (!isValidApiKey) {
             showAlert("Please enter your Gemini API Key in the settings tab first.", 'error');
             return;
         }
@@ -401,6 +412,11 @@ export default function App() {
             });
 
             const data = await response.json();
+            
+            if (!data.candidates || !data.candidates[0] || !data.candidates[0].content || !data.candidates[0].content.parts || !data.candidates[0].content.parts[0]) {
+                throw new Error('Invalid API response format');
+            }
+            
             const text = data.candidates[0].content.parts[0].text;
             const jsonStr = text.replace(/```json/g, '').replace(/```/g, '').trim();
             const parsed = JSON.parse(jsonStr);
