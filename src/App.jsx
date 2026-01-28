@@ -767,7 +767,6 @@ export default function App() {
                                             <th className="p-4 w-24">Type</th>
                                             <th className="p-4">Company</th>
                                             <th className="p-4">Role</th>
-                                            <th className="p-4 w-32">Location</th>
                                             <th className="p-4 w-32">Salary</th>
                                             <th className="p-4">Status</th>
                                             <th className="p-4 w-20 text-right">Details</th>
@@ -775,7 +774,7 @@ export default function App() {
                                     </thead>
                                     <tbody className="divide-y divide-slate-700/50">
                                         {jobs.length === 0 && (
-                                            <tr><td colSpan="8" className="p-8 text-center text-slate-500 italic">No missions logged. Paste a JD or add manually.</td></tr>
+                                            <tr><td colSpan="7" className="p-8 text-center text-slate-500 italic">No missions logged. Paste a JD or add manually.</td></tr>
                                         )}
                                         {jobs.map(job => (
                                             <tr key={job.id} onClick={() => openJobDetails(job)} className="hover:bg-slate-700/30 transition cursor-pointer group">
@@ -790,9 +789,6 @@ export default function App() {
                                                 </td>
                                                 <td className="p-4 text-slate-300">
                                                     {job.role || <span className="text-slate-600 italic">Untitled Role</span>}
-                                                </td>
-                                                <td className="p-4 text-xs text-blue-400">
-                                                    {job.location || <span className="text-slate-600 italic">N/A</span>}
                                                 </td>
                                                 <td className="p-4 text-xs text-green-400 font-mono">
                                                     {job.salary || <span className="text-slate-600 italic">N/A</span>}
