@@ -759,22 +759,21 @@ export default function App() {
                         </div>
 
                         <div className="bg-[#1e293b]/50 rounded-xl overflow-hidden border border-slate-700 backdrop-blur-sm">
-                            <div className="overflow-x-auto">
+                            <div className="overflow-x-auto overflow-y-auto max-h-[70vh]">
                                 <table className="w-full text-left text-sm text-slate-300">
-                                    <thead className="bg-[#0f172a]/90 text-xs uppercase font-bold text-slate-400 border-b border-slate-700">
+                                    <thead className="bg-[#0f172a]/90 text-xs uppercase font-bold text-slate-400 border-b border-slate-700 sticky top-0 z-10">
                                         <tr>
                                             <th className="p-4 w-32">Date</th>
                                             <th className="p-4 w-24">Type</th>
                                             <th className="p-4">Company</th>
                                             <th className="p-4">Role</th>
-                                            <th className="p-4 w-32">Salary</th>
-                                            <th className="p-4">Status</th>
+                                            <th className="p-4 w-28">Status</th>
                                             <th className="p-4 w-20 text-right">Details</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-slate-700/50">
                                         {jobs.length === 0 && (
-                                            <tr><td colSpan="7" className="p-8 text-center text-slate-500 italic">No missions logged. Paste a JD or add manually.</td></tr>
+                                            <tr><td colSpan="6" className="p-8 text-center text-slate-500 italic">No missions logged. Paste a JD or add manually.</td></tr>
                                         )}
                                         {jobs.map(job => (
                                             <tr key={job.id} onClick={() => openJobDetails(job)} className="hover:bg-slate-700/30 transition cursor-pointer group">
@@ -790,11 +789,8 @@ export default function App() {
                                                 <td className="p-4 text-slate-300">
                                                     {job.role || <span className="text-slate-600 italic">Untitled Role</span>}
                                                 </td>
-                                                <td className="p-4 text-xs text-green-400 font-mono">
-                                                    {job.salary || <span className="text-slate-600 italic">N/A</span>}
-                                                </td>
                                                 <td className="p-4">
-                                                     <span className={`px-2 py-1 rounded text-xs font-bold ${job.status === 'Interview' ? 'bg-green-900/50 text-green-400 border border-green-800' : job.status === 'Not Valid' ? 'bg-red-900/50 text-red-400 border border-red-800' : 'text-slate-400 bg-slate-800/50'}`}>
+                                                     <span className={`inline-flex items-center whitespace-nowrap px-2.5 py-1 rounded text-[11px] font-bold ${job.status === 'Interview' ? 'bg-green-900/50 text-green-400 border border-green-800' : job.status === 'Not Valid' ? 'bg-red-900/50 text-red-400 border border-red-800' : 'text-slate-400 bg-slate-800/50'}`}>
                                                         {job.status}
                                                      </span>
                                                 </td>
