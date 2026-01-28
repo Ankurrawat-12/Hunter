@@ -69,6 +69,10 @@ const CHEAT_SHEET = {
     Tech: [
         { q: "Tell me about yourself (Hook)", a: "I'm a software engineer focused on building reliable web products end-to-end. My strengths are clean API design, data performance, and shipping in remote teams. At Trilogy, I reduced p95 latency from 280ms to 115ms. I'm looking for a role where I can own meaningful features." },
         { q: "Cover Letter Hook (Application)", a: "I don't just write code; I fix scaling issues. At Trilogy, I reduced p95 latency from 280ms to 115ms and handled 8k concurrent users on FastAPI. I ship production code daily." },
+        { q: "Cover Letter - Python Backend Engineer", a: "Hi there,\n\nI build backend systems that are fast, clean, and actually stay up.\n\nIn my current role at Trilogy, I own the API surfaces across six different services. I recently cut synchronous request times by 55% by introducing background workers and fixing query patterns. Previously at NAB, I reduced our recurring incident rate by 30% just by hardening our error taxonomy and timeouts.\n\nI'm looking for a team where I can own meaningful features end-to-end and obsess over performance metrics.\n\nBest, Jay" },
+        { q: "Cover Letter - Full-Stack Engineer (JS/TS)", a: "Hi there,\n\nI bridge the gap between complex backends and snappy, responsive UIs.\n\nI love solving performance puzzles. At Trilogy, I improved our API latency from 310ms to 140ms by rethinking our query plans and caching strategies. Before that, at NAB, I built internal platform tools used by over 2,000 staff members, cutting support tickets by 22% through better UI error handling.\n\nI'm eager to join a team that values shipping fast without breaking things.\n\nBest, Jay" },
+        { q: "Experience Summary - Python Backend", a: "I am a Senior Backend Engineer specializing in Python, FastAPI, and Django. Currently at Trilogy (Jan 2024–Present) and formerly at NAB (Jan 2022–Dec 2023), I focus on building high-scale, fault-tolerant systems. My recent wins include reducing p95 latency from 280ms to 115ms and designing workflows that handle over 1 million requests per day." },
+        { q: "Experience Summary - Full-Stack (JS/TS)", a: "I am a Senior Full-Stack Engineer (TypeScript, React, Next.js, Node.js) with a track record of performance tuning at Trilogy and NAB. I excel at optimizing user experiences, recently reducing median page load times from 2.1s to 0.9s and personally delivering 20–30 production PRs every month." },
         { q: "Why this company?", a: "Looking for teams building real product systems where performance, reliability & shipping discipline matter. This role aligns with owning features end-to-end and strong remote collaboration." },
         { q: "Remote/Async Experience?", a: "Yes. Async-first: clear written updates, predictable handoffs, proactive risk communication. Used to high-accountability remote environments (Trilogy)." },
         { q: "Why no LinkedIn?", a: "I keep my online footprint minimal and prefer my work to speak through verified channels (GitHub/Portfolio). Happy to provide references." },
@@ -84,6 +88,8 @@ const CHEAT_SHEET = {
     Content: [
         { q: "Tell me about yourself (Hook)", a: "I'm a content strategist focused on driving traffic and signups, not just 'writing words'. My strength is translating complex technical features into clear benefits. At Vision Forge, my 20-part series drove significant organic traffic." },
         { q: "Cover Letter Hook (Application)", a: "Most writers can't read code. I can. I am a Senior Full-Stack Engineer who writes. I build the API, then I write the documentation and the SEO strategy to sell it." },
+        { q: "Cover Letter - Senior Content Writer", a: "Hi there,\n\nI write content that does more than just fill a page—it converts.\n\nI specialize in taking complex topics and making them clear and engaging. At Trilogy, I developed SEO strategies that led to a noticeable increase in organic traffic. At NAB, I authored a 20-part financial literacy blog series that attracted tens of thousands of monthly views.\n\nWhether it's a technical whitepaper or a punchy email sequence, I focus on delivering measurable ROI. I'd love to help tell your brand's story.\n\nBest, Jay" },
+        { q: "Experience Summary - Content Writer", a: "I am a Senior Content Writer with over 5 years of experience creating SEO-driven and conversion-focused content. My work at Trilogy and NAB spans multi-channel marketing campaigns, video scripts, and long-form articles. I have successfully driven organic traffic growth and authored comprehensive educational series to build brand trust." },
         { q: "What niches can you write for?", a: "I ramp fast: read docs, study competitors, talk to SMEs. Default is building a messaging map before writing. Comfortable with SaaS, Fintech, and DevTools." },
         { q: "How do you handle deadlines?", a: "I plan with outlines and templates, batch research, and ship in drafts. I'd rather deliver consistently with clear quality standards than overpromise and rush." },
         { q: "Comp Expectations?", a: "Targeting market-aligned remote compensation ($50k-$80k). Flexible based on scope (contract vs full-time)." },
@@ -854,9 +860,16 @@ export default function App() {
                                 <div className="p-4 space-y-4 max-h-[60vh] overflow-y-auto">
                                     <AnswerCard title="Cover Letter Hook" text="I don't just write code; I fix scaling issues. At Trilogy, I reduced p95 latency from 280ms to 115ms and handled 8k concurrent users on FastAPI. I ship production code daily." onCopy={copyToClip} />
                                     {CHEAT_SHEET.Tech.filter(item => item.q !== "Cover Letter Hook (Application)").map((item, i) => (
-                                        <div key={i} className="group relative bg-slate-800/50 p-4 rounded border border-slate-700/50 hover:border-blue-500/50 transition">
+                                        <div 
+                                            key={i} 
+                                            onClick={() => copyToClip(item.a)} 
+                                            className="group relative bg-slate-800/50 p-4 rounded border border-slate-700/50 hover:border-blue-500/50 transition cursor-pointer"
+                                        >
                                             <p className="text-xs font-bold text-blue-400 uppercase mb-2">{item.q}</p>
-                                            <p className="text-sm text-slate-300">{item.a}</p>
+                                            <p className="text-sm text-slate-300 whitespace-pre-line">{item.a}</p>
+                                            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition">
+                                                <Icons.Copy />
+                                            </div>
                                         </div>
                                     ))}
                                 </div>
@@ -869,9 +882,16 @@ export default function App() {
                                 <div className="p-4 space-y-4 max-h-[60vh] overflow-y-auto">
                                     <AnswerCard title="Cover Letter Hook" text="Most writers can't read code. I can. I am a Senior Full-Stack Engineer who writes. I build the API, then I write the documentation and the SEO strategy to sell it." onCopy={copyToClip} />
                                     {CHEAT_SHEET.Content.filter(item => item.q !== "Cover Letter Hook (Application)").map((item, i) => (
-                                        <div key={i} className="group relative bg-slate-800/50 p-4 rounded border border-slate-700/50 hover:border-emerald-500/50 transition">
+                                        <div 
+                                            key={i} 
+                                            onClick={() => copyToClip(item.a)} 
+                                            className="group relative bg-slate-800/50 p-4 rounded border border-slate-700/50 hover:border-emerald-500/50 transition cursor-pointer"
+                                        >
                                             <p className="text-xs font-bold text-emerald-400 uppercase mb-2">{item.q}</p>
-                                            <p className="text-sm text-slate-300">{item.a}</p>
+                                            <p className="text-sm text-slate-300 whitespace-pre-line">{item.a}</p>
+                                            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition">
+                                                <Icons.Copy />
+                                            </div>
                                         </div>
                                     ))}
                                 </div>
