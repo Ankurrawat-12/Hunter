@@ -306,6 +306,8 @@ export default function App() {
             status: "Applied",
             resume: type === 'Tech' ? 'Python.pdf' : 'Content.pdf',
             salary: "",
+            location: "",
+            importantInfo: "",
             url: "",
             email: "",
             fullJD: "",
@@ -405,9 +407,11 @@ export default function App() {
                 "company": "Company Name",
                 "role": "Job Title",
                 "salary": "Salary Range (e.g. $60k-$90k)",
+                "location": "Job location (e.g. Remote, New York, USA, India, Worldwide). Extract city, country, or remote status.",
                 "platform": "Guess platform (e.g. Indeed, LinkedIn, Upwork) based on text or put 'Direct'",
                 "tech_stack": "Key technologies listed (comma separated)",
                 "email": "Contact email address if mentioned (e.g. jobs@company.com, recruiter@company.com). Extract from text, links, or application instructions.",
+                "important_info": "Any critical information to remember: application deadlines, special requirements, interview process details, company culture notes, or any other important details that should be kept in mind.",
                 "job_description": "Clean, well-formatted job description text. Remove any headers, footers, or platform-specific formatting. Keep all important details about responsibilities, requirements, and benefits. Format with proper line breaks for readability."
             }
             Job Description:
@@ -437,14 +441,16 @@ export default function App() {
                 type: jdType,
                 company: parsed.company,
                 role: parsed.role,
-                salary: parsed.salary,
+                salary: parsed.salary || "N/A",
+                location: parsed.location || "N/A",
                 platform: parsed.platform,
                 status: "Applied",
                 resume: jdType === 'Tech' ? 'Python.pdf' : 'Content.pdf',
                 fullJD: parsed.job_description || rawJD,
                 url: "",
                 email: parsed.email || "",
-                notes: `Stack: ${parsed.tech_stack}`,
+                importantInfo: parsed.important_info || "",
+                notes: `Stack: ${parsed.tech_stack || "N/A"}`,
                 createdAt: new Date().toISOString(),
                 updatedAt: new Date().toISOString()
             };
@@ -547,12 +553,13 @@ export default function App() {
                                     <select 
                                         value={selectedJob.status} 
                                         onChange={(e) => updateJob(selectedJob.id, 'status', e.target.value)} 
-                                        className={`w-full bg-slate-800 border border-slate-700 rounded p-2 mt-1 font-bold ${selectedJob.status === 'Interview' ? 'text-green-400 border-green-500' : 'text-slate-300'}`}
+                                        className={`w-full bg-slate-800 border border-slate-700 rounded p-2 mt-1 font-bold ${selectedJob.status === 'Interview' ? 'text-green-400 border-green-500' : selectedJob.status === 'Not Valid' ? 'text-red-400 border-red-500' : 'text-slate-300'}`}
                                     >
                                         <option>Applied</option>
                                         <option>Replied</option>
                                         <option>Interview</option>
                                         <option>Rejected</option>
+                                        <option>Not Valid</option>
                                         <option>Offer</option>
                                     </select>
                                 </div>
@@ -588,25 +595,43 @@ export default function App() {
                                     <div>
                                         <label className="text-[10px] font-bold text-slate-500 uppercase">Salary</label>
                                         <input 
-                                            value={selectedJob.salary} 
+                                            value={selectedJob.salary || ''} 
                                             onChange={(e) => updateJob(selectedJob.id, 'salary', e.target.value)}
                                             className="w-full bg-slate-800 border border-slate-700 rounded p-2 mt-1 text-sm text-green-400 font-mono focus:outline-none"
                                             placeholder="N/A"
                                         />
                                     </div>
                                     <div>
-                                        <label className="text-[10px] font-bold text-slate-500 uppercase">Platform</label>
-                                        <select value={selectedJob.platform} onChange={(e) => updateJob(selectedJob.id, 'platform', e.target.value)} className="w-full bg-slate-800 border border-slate-700 rounded p-2 mt-1 text-sm text-slate-300 focus:outline-none">
-                                            <option>Remote Rocketship</option>
-                                            <option>Wellfound</option>
-                                            <option>Indeed</option>
-                                            <option>Superpath</option>
-                                            <option>We Work Remotely</option>
-                                            <option>Upwork</option>
-                                            <option>Reddit/Discord</option>
-                                            <option>Direct/Other</option>
-                                        </select>
+                                        <label className="text-[10px] font-bold text-slate-500 uppercase">Location</label>
+                                        <input 
+                                            value={selectedJob.location || ''} 
+                                            onChange={(e) => updateJob(selectedJob.id, 'location', e.target.value)}
+                                            className="w-full bg-slate-800 border border-slate-700 rounded p-2 mt-1 text-sm text-blue-400 focus:outline-none"
+                                            placeholder="Remote / City, Country"
+                                        />
                                     </div>
+                                </div>
+                                <div>
+                                    <label className="text-[10px] font-bold text-slate-500 uppercase">Platform</label>
+                                    <select value={selectedJob.platform} onChange={(e) => updateJob(selectedJob.id, 'platform', e.target.value)} className="w-full bg-slate-800 border border-slate-700 rounded p-2 mt-1 text-sm text-slate-300 focus:outline-none">
+                                        <option>Remote Rocketship</option>
+                                        <option>Wellfound</option>
+                                        <option>Indeed</option>
+                                        <option>Superpath</option>
+                                        <option>We Work Remotely</option>
+                                        <option>Upwork</option>
+                                        <option>Reddit/Discord</option>
+                                        <option>Direct/Other</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="text-[10px] font-bold text-orange-500 uppercase mb-1">Important Information</label>
+                                    <textarea 
+                                        value={selectedJob.importantInfo || ''} 
+                                        onChange={(e) => updateJob(selectedJob.id, 'importantInfo', e.target.value)}
+                                        className="w-full bg-slate-800 border border-orange-700 rounded p-3 text-sm text-orange-300 focus:outline-none h-24 resize-none"
+                                        placeholder="Deadlines, special requirements, interview process, company culture notes..."
+                                    ></textarea>
                                 </div>
                             </div>
 
@@ -736,13 +761,15 @@ export default function App() {
                                             <th className="p-4 w-24">Type</th>
                                             <th className="p-4">Company</th>
                                             <th className="p-4">Role</th>
+                                            <th className="p-4 w-32">Location</th>
+                                            <th className="p-4 w-32">Salary</th>
                                             <th className="p-4">Status</th>
                                             <th className="p-4 w-20 text-right">Details</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-slate-700/50">
                                         {jobs.length === 0 && (
-                                            <tr><td colSpan="6" className="p-8 text-center text-slate-500 italic">No missions logged. Paste a JD or add manually.</td></tr>
+                                            <tr><td colSpan="8" className="p-8 text-center text-slate-500 italic">No missions logged. Paste a JD or add manually.</td></tr>
                                         )}
                                         {jobs.map(job => (
                                             <tr key={job.id} onClick={() => openJobDetails(job)} className="hover:bg-slate-700/30 transition cursor-pointer group">
@@ -758,8 +785,14 @@ export default function App() {
                                                 <td className="p-4 text-slate-300">
                                                     {job.role || <span className="text-slate-600 italic">Untitled Role</span>}
                                                 </td>
+                                                <td className="p-4 text-xs text-blue-400">
+                                                    {job.location || <span className="text-slate-600 italic">N/A</span>}
+                                                </td>
+                                                <td className="p-4 text-xs text-green-400 font-mono">
+                                                    {job.salary || <span className="text-slate-600 italic">N/A</span>}
+                                                </td>
                                                 <td className="p-4">
-                                                     <span className={`px-2 py-1 rounded text-xs font-bold ${job.status === 'Interview' ? 'bg-green-900/50 text-green-400 border border-green-800' : 'text-slate-400 bg-slate-800/50'}`}>
+                                                     <span className={`px-2 py-1 rounded text-xs font-bold ${job.status === 'Interview' ? 'bg-green-900/50 text-green-400 border border-green-800' : job.status === 'Not Valid' ? 'bg-red-900/50 text-red-400 border border-red-800' : 'text-slate-400 bg-slate-800/50'}`}>
                                                         {job.status}
                                                      </span>
                                                 </td>
