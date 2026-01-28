@@ -68,6 +68,12 @@ const LAUNCH_LINKS = [
 const CHEAT_SHEET = {
     Tech: [
         { q: "Tell me about yourself (Hook)", a: "I'm a software engineer focused on building reliable web products end-to-end. My strengths are clean API design, data performance, and shipping in remote teams. At Trilogy, I reduced p95 latency from 280ms to 115ms. I'm looking for a role where I can own meaningful features." },
+        { q: "Cover Letter Hook (Application)", a: "I don't just write code; I fix scaling issues. At Trilogy, I reduced p95 latency from 280ms to 115ms and handled 8k concurrent users on FastAPI. I ship production code daily." },
+        { q: "Why this company?", a: "Looking for teams building real product systems where performance, reliability & shipping discipline matter. This role aligns with owning features end-to-end and strong remote collaboration." },
+        { q: "Remote/Async Experience?", a: "Yes. Async-first: clear written updates, predictable handoffs, proactive risk communication. Used to high-accountability remote environments (Trilogy)." },
+        { q: "Why no LinkedIn?", a: "I keep my online footprint minimal and prefer my work to speak through verified channels (GitHub/Portfolio). Happy to provide references." },
+        { q: "Salary Expectations?", a: "Open to market rates for Senior roles ($60k - $90k USD/yr). Flexible for the right team." },
+        { q: "Notice Period?", a: "Immediate / 2 Weeks. Flexible for onboarding coordination." },
         { q: "What is p95?", a: "Latency value where 95% of requests are faster than this threshold. Averages hide the pain users feel; percentiles reveal the real UX." },
         { q: "How did you improve latency?", a: "1. Fixed N+1 query patterns. 2. Added indexes on high-traffic columns. 3. Introduced Redis caching for hot reads. 4. Reduced payload size via shaping." },
         { q: "Why Redis?", a: "Low-latency caching, rate counters, and distributed locks. Tradeoff is in-memory volatility (data loss on crash), but speed is worth it for transient data." },
@@ -77,6 +83,10 @@ const CHEAT_SHEET = {
     ],
     Content: [
         { q: "Tell me about yourself (Hook)", a: "I'm a content strategist focused on driving traffic and signups, not just 'writing words'. My strength is translating complex technical features into clear benefits. At Vision Forge, my 20-part series drove significant organic traffic." },
+        { q: "Cover Letter Hook (Application)", a: "Most writers can't read code. I can. I am a Senior Full-Stack Engineer who writes. I build the API, then I write the documentation and the SEO strategy to sell it." },
+        { q: "What niches can you write for?", a: "I ramp fast: read docs, study competitors, talk to SMEs. Default is building a messaging map before writing. Comfortable with SaaS, Fintech, and DevTools." },
+        { q: "How do you handle deadlines?", a: "I plan with outlines and templates, batch research, and ship in drafts. I'd rather deliver consistently with clear quality standards than overpromise and rush." },
+        { q: "Comp Expectations?", a: "Targeting market-aligned remote compensation ($50k-$80k). Flexible based on scope (contract vs full-time)." },
         { q: "Why Content?", a: "I like taking messy, complex ideas and structuring them into something people actually use. The feedback loop is direct: if content is good, engagement metrics go up." },
         { q: "Your Process?", a: "Research -> Intent Mapping -> Outline -> Draft -> Stakeholder Review. I outline early to prevent major rewrites later." },
         { q: "SEO Approach?", a: "Search Intent first. I analyze the SERP to see what users want, then build an outline that answers it better than the top result. Keywords support the piece, they don't drive it." },
@@ -810,7 +820,7 @@ export default function App() {
                                 </div>
                                 <div className="p-4 space-y-4 max-h-[60vh] overflow-y-auto">
                                     <AnswerCard title="Cover Letter Hook" text="I don't just write code; I fix scaling issues. At Trilogy, I reduced p95 latency from 280ms to 115ms and handled 8k concurrent users on FastAPI. I ship production code daily." onCopy={copyToClip} />
-                                    {CHEAT_SHEET.Tech.map((item, i) => (
+                                    {CHEAT_SHEET.Tech.filter(item => item.q !== "Cover Letter Hook (Application)").map((item, i) => (
                                         <div key={i} className="group relative bg-slate-800/50 p-4 rounded border border-slate-700/50 hover:border-blue-500/50 transition">
                                             <p className="text-xs font-bold text-blue-400 uppercase mb-2">{item.q}</p>
                                             <p className="text-sm text-slate-300">{item.a}</p>
@@ -825,7 +835,7 @@ export default function App() {
                                 </div>
                                 <div className="p-4 space-y-4 max-h-[60vh] overflow-y-auto">
                                     <AnswerCard title="Cover Letter Hook" text="Most writers can't read code. I can. I am a Senior Full-Stack Engineer who writes. I build the API, then I write the documentation and the SEO strategy to sell it." onCopy={copyToClip} />
-                                    {CHEAT_SHEET.Content.map((item, i) => (
+                                    {CHEAT_SHEET.Content.filter(item => item.q !== "Cover Letter Hook (Application)").map((item, i) => (
                                         <div key={i} className="group relative bg-slate-800/50 p-4 rounded border border-slate-700/50 hover:border-emerald-500/50 transition">
                                             <p className="text-xs font-bold text-emerald-400 uppercase mb-2">{item.q}</p>
                                             <p className="text-sm text-slate-300">{item.a}</p>
